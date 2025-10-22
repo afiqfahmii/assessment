@@ -1,23 +1,25 @@
-    export const pimSelectors = {
-    // --- Employee Full Name ---
-    firstNameInput: 'input[name="firstName"]',
-    middleNameInput: 'input[name="middleName"]',
-    lastNameInput: 'input[name="lastName"]',
-
-    // --- Employee ID ---
-    employeeIdInput: 'xpath=//label[text()="Employee Id"]/following::input[1]',
-
-    // --- Create Login Details Toggle ---
-    createLoginToggle: '.oxd-switch-input', // only one toggle on page
-
-    // --- Login Details ---
-    usernameInput: 'xpath=//label[text()="Username"]/following::input[1]',
-    passwordInput: 'xpath=//label[text()="Password"]/following::input[1]',
-    confirmPasswordInput: 'xpath=//label[text()="Confirm Password"]/following::input[1]',
-    statusEnabledRadio: 'label:has-text("Enabled")',
-    statusDisabledRadio: 'label:has-text("Disabled")',
-
-    // --- Buttons ---
+export const pimSelectors = {
+  sidebar: {
+    pimButton: 'span:has-text("PIM")',
+    adminButton: 'span:has-text("Admin")',
+  },
+  navbar: {
+    addEmployeeTab: 'a:has-text("Add Employee")',
+    employeeListTab: 'a:has-text("Employee List")',
+  },
+  employeeForm: {
+    firstName: 'input[name="firstName"]',
+    middleName: 'input[name="middleName"]',
+    lastName: 'input[name="lastName"]',
+    employeeId: '//label[text()="Employee Id"]/following::input[1]',
+    createLoginToggle: '.oxd-switch-input',
+    username: '//label[text()="Username"]/following::input[1]',
+    password: '//label[text()="Password"]/following::input[1]',
+    confirmPassword: '//label[text()="Confirm Password"]/following::input[1]',
     saveButton: 'button:has-text("Save")',
-    cancelButton: 'button:has-text("Cancel")',
-    };
+  },
+  common: {
+    toast: '.oxd-toast',
+    loader: '.oxd-form-loader',
+  },
+};
