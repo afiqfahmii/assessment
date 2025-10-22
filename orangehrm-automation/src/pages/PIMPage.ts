@@ -56,28 +56,45 @@ export class PIMPage {
     await this.page.waitForSelector('h5:has-text("Employee Information")');
   }
 
-  async assignSupervisor(employeeName: string, supervisorName: string) {
-    await this.page.fill('//label[text()="Employee Name"]/../following-sibling::div//input', employeeName);
-    await this.page.waitForTimeout(2000);
+async assignSupervisor(employeeName: string, supervisorName: string) {
+  await this.page.fill('//label[text()="Employee Name"]/../following-sibling::div//input', employeeName);
+  await this.page.waitForTimeout(20000);
 
-    const firstOption = this.page.locator('div[role="option"]').first();
-    if (await firstOption.isVisible()) await firstOption.click();
+  const firstOption = this.page.locator('div[role="option"]').first();
+  if (await firstOption.isVisible()) await firstOption.click();
 
-    await this.page.click('button:has-text("Search")');
-    await this.page.waitForTimeout(2000);
-    await this.page.locator('i.bi-pencil-fill').first().click();
+  await this.page.click('button:has-text("Search")');
+  await this.page.waitForTimeout(20000);
+  await this.page.locator('i.bi-pencil-fill').first().click();
 
-    await this.page.waitForSelector('h6:has-text("Personal Details")');
-    await this.page.click('a:has-text("Report-to")');
-    await this.page.click('button:has-text("Add")');
+// Click the "Report-to" tab (case-insensitive and safer)
+await this.page.getByRole('tab', { name: /report/i }).click();
 
-    await this.page.fill('//label[text()="Name"]/../following-sibling::div//input', supervisorName);
-    await this.page.waitForTimeout(1000);
-    await this.page.locator(`div[role="option"]:has-text("${supervisorName}")`).first().click();
+// Wait for tab content to load (look for unique text in that section)
+await this.page.waitForSelector('text=Assigned Supervisors', { timeout: 20000 });
 
-    await this.page.click('//label[text()="Reporting Method"]/../following-sibling::div//i');
-    await this.page.click('div[role="option"]:has-text("Direct")');
-    await this.page.click('button:has-text("Save")');
-    await this.page.waitForSelector(pimSelectors.common.toast);
-  }
+// Wait for the Add button to appear
+const addButton = this.page.locator('button:has-text("Add")');
+await addButton.waitFor({ state: 'visible', timeout: 20000 });
+
+// Scroll into view (just in case)
+await addButton.scrollIntoViewIfNeeded();
+
+// Click Add
+await addButton.click();
+
+  // Fill supervisor name
+  await this.page.fill('//label[text()="Name"]/../following-sibling::div//input', supervisorName);
+  await this.page.waitForTimeout(1000);
+  await this.page.locator(`div[role="option"]:has-text("${supervisorName}")`).first().click();
+
+  // Select Reporting Method
+  await this.page.click('//label[text()="Reporting Method"]/../following-sibling::div//i');
+  await this.page.click('div[role="option"]:has-text("Direct")');
+
+  // Save
+  await this.page.click('button:has-text("Save")');
+  await this.page.waitForSelector(pimSelectors.common.toast, { timeout: 20000 });
+}
+
 }

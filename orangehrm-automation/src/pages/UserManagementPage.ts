@@ -3,35 +3,107 @@ import { Page } from '@playwright/test';
 export class UserManagementPage {
   constructor(private page: Page) {}
 
-  async gotoUsersTab() {
-    await this.page.click('span:has-text("Admin")');
-    await this.page.waitForSelector('nav.oxd-topbar-body-nav');
-    await this.page.locator('li:has-text("User Management") i.oxd-icon.bi-chevron-down').first().click();
-    await this.page.locator('a[role="menuitem"]:has-text("Users")').click();
-    await this.page.waitForSelector('button:has-text("Add")');
+async gotoUsersTab() {
+  console.log('Navigating to Admin → User Management → Users...');
+
+  // If still on employee details page, go back to dashboard
+  const currentUrl = this.page.url();
+  if (currentUrl.includes('/viewPersonalDetails')) {
+    console.log('Currently on employee details — navigating back to dashboard...');
+    await this.page.goto(
+      'https://opensource-demo.orangehrmlive.com/web/index.php/dashboard/index',
+      { waitUntil: 'domcontentloaded' }
+    );
   }
 
+  // Wait for sidebar
+  await this.page.waitForSelector('aside', { timeout: 20000 });
+
+  // Click "Admin" on sidebar
+  const adminButton = this.page.locator('span:has-text("Admin")');
+  await adminButton.waitFor({ state: 'visible', timeout: 20000 });
+  await adminButton.click({ force: true });
+  console.log('✅ Clicked Admin sidebar');
+
+  // Wait for the top nav bar to appear
+  await this.page.waitForSelector('nav.oxd-topbar-body-nav', { timeout: 20000 });
+
+  // Wait explicitly for "User Management" text inside the top bar
+  const userMgmt = this.page.locator('nav.oxd-topbar-body-nav >> text=User Management');
+  await userMgmt.waitFor({ state: 'visible', timeout: 20000 });
+
+  // Optional safety wait (some animations)
+  await this.page.waitForTimeout(500);
+
+  // Click the "User Management" dropdown if exists
+  const dropdownIcon = this.page.locator(
+    'nav.oxd-topbar-body-nav li:has-text("User Management") i.oxd-icon.bi-chevron-down'
+  );
+  if (await dropdownIcon.isVisible()) {
+    await dropdownIcon.click({ force: true });
+    console.log('📂 Expanded User Management dropdown');
+  } else {
+    console.log('⚠️ Dropdown icon not visible, continuing...');
+  }
+
+  // Click “Users” in dropdown
+  const usersMenu = this.page.locator('a[role="menuitem"]:has-text("Users")');
+  await usersMenu.waitFor({ state: 'visible', timeout: 20000 });
+  await usersMenu.click({ force: true });
+
+  // Wait for “System Users” page
+  await Promise.race([
+    this.page.waitForSelector('h6:has-text("System Users")', { timeout: 20000 }),
+    this.page.waitForSelector('button:has-text("Add")', { timeout: 20000 }),
+  ]);
+
+  console.log('✅ Navigated to Users page.');
+}
+
+
   async addSystemUser(employeeName: string, role: string, username: string, password: string) {
-    await this.page.click('button:has-text("Add")');
-    await this.page.waitForSelector('h6:has-text("Add User")');
+    console.log('Adding new system user...');
 
-    await this.page.click('//label[text()="User Role"]/../following-sibling::div//i');
-    await this.page.click(`div[role="option"]:has-text("${role}")`);
+    // Click Add button
+    const addButton = this.page.locator('button:has-text("Add")');
+    await addButton.waitFor({ state: 'visible', timeout: 10000 });
+    await addButton.click({ force: true });
 
-    await this.page.click('//label[text()="Status"]/../following-sibling::div//i');
-    await this.page.click('div[role="option"]:has-text("Enabled")');
+    // Wait for form to appear
+    await this.page.waitForSelector('//label[text()="User Role"]', { timeout: 20000 });
+    console.log('✅ Add User form is visible.');
 
-    const empSearch = this.page.locator('//label[text()="Employee Name"]/../following-sibling::div//input');
-    await empSearch.fill(employeeName.slice(0, 6));
-    await this.page.waitForFunction(() => document.querySelectorAll('div[role="option"]').length > 0);
-    await this.page.waitForTimeout(1000);
-    await this.page.locator('div[role="option"]').first().click();
+    // Select User Role
+    await this.page.locator('//label[text()="User Role"]/../following-sibling::div//i').click();
+    await this.page.locator(`div[role="option"]:has-text("${role}")`).click();
 
+    // Select Status
+    await this.page.locator('//label[text()="Status"]/../following-sibling::div//i').click();
+    await this.page.locator('div[role="option"]:has-text("Enabled")').click();
+
+    // Type Employee Name
+    const empInput = this.page.locator('//label[text()="Employee Name"]/../following-sibling::div//input');
+    await empInput.fill(employeeName);
+    await this.page.waitForTimeout(1500);
+
+    // Pick the first dropdown option
+    const firstOption = this.page.locator('div[role="option"]').first();
+    if (await firstOption.isVisible()) {
+      await firstOption.click();
+    } else {
+      console.warn('⚠️ Employee not found in suggestion list.');
+    }
+
+    // Fill Username + Password
     await this.page.fill('//label[text()="Username"]/../following-sibling::div//input', username);
     await this.page.fill('//label[text()="Password"]/../following-sibling::div//input', password);
     await this.page.fill('//label[text()="Confirm Password"]/../following-sibling::div//input', password);
 
-    await this.page.click('button:has-text("Save")');
-    await this.page.waitForSelector('.oxd-toast', { timeout: 30000 });
+    // Click Save
+    await this.page.locator('button:has-text("Save")').click();
+
+    // Wait for toast
+    await this.page.waitForSelector('.oxd-toast', { timeout: 20000 });
+    console.log('✅ System user successfully added.');
   }
 }
