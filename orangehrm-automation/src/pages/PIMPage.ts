@@ -28,7 +28,7 @@ export class PIMPage {
 
     // Enable login creation
     await this.page.locator(pimSelectors.employeeForm.createLoginToggle).click();
-    await this.page.waitForTimeout(1000);
+    await this.page.waitForTimeout(10000);
 
     // Fill login credentials
     const uniqueUser = `${employee.username}_${Date.now()}`;
@@ -42,8 +42,8 @@ export class PIMPage {
 
     // Wait for redirect or toast
     const result = await Promise.race([
-      this.page.waitForURL(/viewPersonalDetails/, { timeout: 30000 }).then(() => 'redirect'),
-      this.page.waitForSelector(pimSelectors.common.toast, { timeout: 30000 }).then(() => 'toast'),
+      this.page.waitForURL(/viewPersonalDetails/, { timeout: 50000 }).then(() => 'redirect'),
+      this.page.waitForSelector(pimSelectors.common.toast, { timeout: 50000 }).then(() => 'toast'),
     ]).catch(() => 'none');
 
     console.log(`After Save: ${result}, URL: ${await this.page.url()}`);
@@ -58,14 +58,17 @@ export class PIMPage {
 
   async assignSupervisor(employeeName: string, supervisorName: string) {
     await this.page.fill('//label[text()="Employee Name"]/../following-sibling::div//input', employeeName);
-    await this.page.waitForTimeout(2000);
+    await this.page.waitForTimeout(3000);
 
     const firstOption = this.page.locator('div[role="option"]').first();
     if (await firstOption.isVisible()) await firstOption.click();
 
     await this.page.click('button:has-text("Search")');
-    await this.page.waitForTimeout(2000);
+    await this.page.waitForTimeout(1000);
     await this.page.locator('i.bi-pencil-fill').first().click();
+
+    // await this.page.waitForTimeout(5000);
+    // console.log(await this.page.content());
 
     await this.page.waitForSelector('h6:has-text("Personal Details")');
     await this.page.click('a:has-text("Report-to")');
