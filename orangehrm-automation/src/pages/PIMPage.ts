@@ -58,7 +58,7 @@ export class PIMPage {
 
   async assignSupervisor(employeeName: string, supervisorName: string) {
     await this.page.fill('//label[text()="Employee Name"]/../following-sibling::div//input', employeeName);
-    await this.page.waitForTimeout(3000);
+    await this.page.waitForTimeout(1000);
 
     const firstOption = this.page.locator('div[role="option"]').first();
     if (await firstOption.isVisible()) await firstOption.click();
