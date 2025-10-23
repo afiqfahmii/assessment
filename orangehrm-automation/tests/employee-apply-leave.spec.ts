@@ -8,11 +8,11 @@ test('Employee can apply for Annual Leave', async ({ page }) => {
 
   // Example employee (from previous created user)
   const employee: Employee = {
-    firstName: 'Hey',
-    middleName: 'Ho',
-    lastName: 'Sesko',
+    firstName: 'Antony',
+    middleName: 'Chadwick',
+    lastName: 'Jones',
     employeeId: 'E2025',
-    username: 'emp_29911_988_1761216642526', // use your actual generated username
+    username: 'emp_14683_338_1761243528283', // use your actual generated username
     password: 'Test@1234',
   };
 

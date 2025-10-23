@@ -1,8 +1,7 @@
 export interface SystemUser {
-  employeeName: string; // full name of the employee to link
-  role: 'Admin' | 'ESS'; // system role
-  status?: 'Enabled' | 'Disabled'; // optional, can add later
+  employeeName: string; 
+  role: 'Admin' | 'ESS';
+  status?: 'Enabled' | 'Disabled';
   username: string;
   password: string;
 }
-    

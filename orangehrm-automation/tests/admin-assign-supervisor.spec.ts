@@ -10,5 +10,5 @@ test('Admin can assign supervisor to employee', async ({ page }) => {
   await login.goto();
   await login.login('Admin', 'admin123');
   await pim.gotoEmployeeList();
-  await pim.assignSupervisor('Antony Chadwick Jones', 'my test sv');
+  await pim.assignSupervisor('Antony Chadwick Jones', 'Supervisor Of Staff');
 });
