@@ -46,8 +46,16 @@ export class LeaveApplyPage {
         .forEach((el) => el.removeAttribute("readonly"));
     });
 
+    await fromDate.click({ force: true });
+    await fromDate.press("Control+A");
+    await fromDate.press("Backspace");
     await fromDate.fill(leave.fromDate);
+
+    await toDate.click({ force: true });
+    await toDate.press("Control+A");
+    await toDate.press("Backspace");
     await toDate.fill(leave.toDate);
+
     await this.page.keyboard.press("Escape");
     console.log("✅ Dates filled successfully.");
 

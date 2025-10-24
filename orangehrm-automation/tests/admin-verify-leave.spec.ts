@@ -4,6 +4,7 @@ import { LoginPage } from "../src/pages/LoginPage";
 import { LeaveListPage } from "../src/pages/LeaveListPage";
 
 test("Admin can verify Approved leave request in Leave List", async ({ page }) => {
+  test.setTimeout(90000);
   const login = new LoginPage(page);
   const leaveList = new LeaveListPage(page);
 

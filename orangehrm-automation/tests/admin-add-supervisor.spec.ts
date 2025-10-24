@@ -26,8 +26,8 @@ test('Admin can add new Supervisor and create System User', async ({ page }) => 
     middleName: 'Of',
     lastName: 'Staff',
     employeeId: 'E9999', // you can keep this static or randomize slightly
-    username: roles.supervisor.username,
-    password: roles.supervisor.password,
+    username: roles.supervisor.employee.username,
+    password: roles.supervisor.employee.password,
   };
 
   // Step 4️⃣: Create supervisor employee record
@@ -38,8 +38,8 @@ test('Admin can add new Supervisor and create System User', async ({ page }) => 
   const systemUser: SystemUser = {
     employeeName: `${supervisor.firstName} ${supervisor.middleName} ${supervisor.lastName}`,
     role: 'Admin',
-    username: roles.supervisor.username, // ✅ same username as employee
-    password: roles.supervisor.password,
+    username: roles.supervisor.systemUser.username, 
+    password: roles.supervisor.systemUser.password,
   };
 
   await userMgmt.gotoUsersTab();

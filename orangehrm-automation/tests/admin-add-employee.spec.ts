@@ -38,8 +38,8 @@ test('Admin can add new employee and create ESS user', async ({ page }) => {
   const systemUser: SystemUser = {
     employeeName: `${employee.firstName} ${employee.middleName} ${employee.lastName}`,
     role: 'ESS',
-    username: employee.username,
-    password: employee.password,
+    username: roles.employee.systemUser.username,
+    password: roles.employee.systemUser.password,
   };
 
   await userMgmt.gotoUsersTab();
