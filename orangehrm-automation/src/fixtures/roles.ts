@@ -37,8 +37,8 @@ export const roles = {
     leaveRequest: {
       employeeName: "Antony Chadwick Jones",
       leaveType: "CAN - Vacation",
-      fromDate: "2025-10-31",
-      toDate: "2025-10-31",
+      fromDate: "2025-11-19",
+      toDate: "2025-11-19",
       duration: "Full Day",
       comment: "Requesting annual leave for vacation.",
       status: "Pending Approval",
