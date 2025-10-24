@@ -1,42 +1,28 @@
-import { test } from '@playwright/test';
-import { Employee } from '../src/models/Employee';
-import { LeaveApplyPage } from '../src/pages/LeaveApplyPage';
-import { LoginPage } from '../src/pages/LoginPage';
+import { test } from "@playwright/test";
+import { roles } from "../src/fixtures/roles";
+import { LoginPage } from "../src/pages/LoginPage";
+import { LeaveApplyPage } from "../src/pages/LeaveApplyPage";
 
-test('Employee can verify leave status in My Leave tab', async ({ page }) => {
+test("Employee can verify leave status in My Leave tab", async ({ page }) => {
   test.setTimeout(60000);
-
-  // 🔹 Use existing employee credentials (already applied leave before)
-  const employee: Employee = {
-    firstName: 'Antony',
-    middleName: 'Chadwick',
-    lastName: 'Jones',
-    employeeId: 'E2025',
-    username: 'emp_14683_338_1761243528283',
-    password: 'Test@1234',
-  };
 
   const login = new LoginPage(page);
   const leave = new LeaveApplyPage(page);
 
-  // Step 1️⃣: Login as employee
+  // 🧩 Load from roles fixture
+  const employee = roles.employee.employee; // PIM data
+  const systemUser = roles.employee.systemUser; // Login credentials
+  const leaveRequest = roles.employee.leaveRequest; // Leave request details
+
+  // 🧭 Step 1: Login as employee system user
   await login.goto();
-  await login.login(employee.username, employee.password);
+  await login.login(systemUser.username, systemUser.password);
+  console.log(`✅ Logged in as ${systemUser.username}`);
 
-  // Step 2️⃣: Navigate to Leave → My Leave
-  console.log('Navigating to My Leave tab for verification...');
+  // 🧭 Step 2: Verify applied leave in My Leave tab
+  await leave.verifyLeaveInMyLeaveTab(leaveRequest);
 
-  // Step 3️⃣: Use the same applied date as in the original apply test
-  const today = new Date();
-  const nextWeek = new Date(today);
-  nextWeek.setDate(today.getDate() + 7);
-  const yyyy = nextWeek.getFullYear();
-  const dd = String(nextWeek.getDate()).padStart(2, '0');
-  const mm = String(nextWeek.getMonth() + 1).padStart(2, '0');
-  const appliedDate = `${yyyy}-${dd}-${mm}`; // yyyy-dd-mm
-
-  // Step 4️⃣: Verify that the leave appears in "My Leave" tab
-  await leave.verifyLeaveInMyLeaveTab(employee, appliedDate);
-
-  console.log('✅ Leave verification completed successfully!');
+  console.log(
+    `✅ Verified ${leaveRequest.leaveType} for ${leaveRequest.employeeName} as ${leaveRequest.status}`
+  );
 });

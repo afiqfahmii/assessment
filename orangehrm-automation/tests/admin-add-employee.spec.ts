@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { roles } from '../src/fixtures/roles';
 import { Employee } from '../src/models/Employee';
 import { SystemUser } from '../src/models/SystemUser';
 import { LoginPage } from '../src/pages/LoginPage';
@@ -7,40 +8,39 @@ import { UserManagementPage } from '../src/pages/UserManagementPage';
 
 test('Admin can add new employee and create ESS user', async ({ page }) => {
   test.setTimeout(90000);
-  
+
   const login = new LoginPage(page);
   const pim = new PIMPage(page);
   const userMgmt = new UserManagementPage(page);
 
+  // Step 1️⃣: Login as Admin
   await login.goto();
-  await login.login('Admin', 'admin123');
+  await login.login(roles.admin.username, roles.admin.password);
 
+  // Step 2️⃣: Navigate to Add Employee
   await pim.gotoAddEmployeePage();
 
-  // Generate short unique IDs
-  const timestamp = Date.now().toString().slice(-5);
-  const rand = Math.floor(Math.random() * 1000);
-
-  // 1️⃣ Create new employee record
+  // Step 3️⃣: Use static employee details from roles fixture
   const employee: Employee = {
-    firstName: 'Antony',
-    middleName: 'Chadwick',
-    lastName: 'Jones',
-    employeeId: `${Math.floor(1000 + Math.random() * 9000)}`,
-    username: `emp_${timestamp}_${rand}`,
-    password: 'Test@1234',
+    firstName: roles.employee.employee.firstName,
+    middleName: roles.employee.employee.middleName,
+    lastName: roles.employee.employee.lastName,
+    username: roles.employee.employee.username,
+    employeeId: roles.employee.employee.employeeId,
+    password: roles.employee.employee.password,
   };
 
+  // Step 4️⃣: Create employee record
   const { result, username: employeeUsername } = await pim.addEmployee(employee);
   expect(result === 'redirect' || result === 'toast').toBeTruthy();
 
-  // 2️⃣ Create matching System User (ESS)
+  // Step 5️⃣: Create matching System User (ESS)
   const systemUser: SystemUser = {
     employeeName: `${employee.firstName} ${employee.middleName} ${employee.lastName}`,
     role: 'ESS',
-    username: `sysuser_${timestamp}_${rand}`,
+    username: employee.username,
     password: employee.password,
-  };  
+  };
 
   await userMgmt.gotoUsersTab();
   await userMgmt.addSystemUser(
@@ -50,6 +50,6 @@ test('Admin can add new employee and create ESS user', async ({ page }) => {
     systemUser.password
   );
 
-  console.log(`✅ Employee Username: ${employeeUsername}`);
-  console.log(`✅ System Username: ${systemUser.username}`);
+  console.log(`✅ Employee created: ${employeeUsername}`);
+  console.log(`✅ System User created: ${systemUser.username}`);
 });

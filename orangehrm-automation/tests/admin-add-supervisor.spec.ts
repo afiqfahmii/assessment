@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { roles } from '../src/fixtures/roles';
 import { Employee } from '../src/models/Employee';
 import { SystemUser } from '../src/models/SystemUser';
 import { LoginPage } from '../src/pages/LoginPage';
@@ -7,40 +8,38 @@ import { UserManagementPage } from '../src/pages/UserManagementPage';
 
 test('Admin can add new Supervisor and create System User', async ({ page }) => {
   test.setTimeout(90000);
-  
+
   const login = new LoginPage(page);
   const pim = new PIMPage(page);
   const userMgmt = new UserManagementPage(page);
 
   // Step 1️⃣: Login as Admin
   await login.goto();
-  await login.login('Admin', 'admin123');
+  await login.login(roles.admin.username, roles.admin.password);
 
-  // Step 2️⃣: Navigate to Add Employee and create new Supervisor record
+  // Step 2️⃣: Go to Add Employee page
   await pim.gotoAddEmployeePage();
 
-  // Generate unique identifiers
-  const timestamp = Date.now().toString().slice(-5);
-  const rand = Math.floor(Math.random() * 1000);
-
+  // Step 3️⃣: Use supervisor data from roles fixture
   const supervisor: Employee = {
     firstName: 'Supervisor',
     middleName: 'Of',
     lastName: 'Staff',
-    employeeId: `${Math.floor(1000 + Math.random() * 9000)}`,
-    username: `super_${timestamp}_${rand}`,
-    password: 'Test@1234',
+    employeeId: 'E9999', // you can keep this static or randomize slightly
+    username: roles.supervisor.username,
+    password: roles.supervisor.password,
   };
 
+  // Step 4️⃣: Create supervisor employee record
   const { result, username: supervisorUsername } = await pim.addEmployee(supervisor);
   expect(result === 'redirect' || result === 'toast').toBeTruthy();
 
-  // Step 3️⃣: Create a System User for this supervisor
+  // Step 5️⃣: Create matching system user (Admin role)
   const systemUser: SystemUser = {
     employeeName: `${supervisor.firstName} ${supervisor.middleName} ${supervisor.lastName}`,
-    role: 'Admin', // 👈 supervisor access — change to 'ESS' if your system defines supervisors differently
-    username: `sys_super_${timestamp}_${rand}`,
-    password: supervisor.password,
+    role: 'Admin',
+    username: roles.supervisor.username, // ✅ same username as employee
+    password: roles.supervisor.password,
   };
 
   await userMgmt.gotoUsersTab();
@@ -52,5 +51,5 @@ test('Admin can add new Supervisor and create System User', async ({ page }) => 
   );
 
   console.log(`✅ Supervisor employee created: ${supervisorUsername}`);
-  console.log(`✅ Supervisor system user: ${systemUser.username}`);
+  console.log(`✅ Supervisor system user created: ${systemUser.username}`);
 });

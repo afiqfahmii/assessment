@@ -18,11 +18,6 @@ export class PIMPage {
     await this.page.fill(pimSelectors.employeeForm.middleName, employee.middleName || '');
     await this.page.fill(pimSelectors.employeeForm.lastName, employee.lastName);
 
-    // Fill Employee ID
-    const empIdField = this.page.locator(pimSelectors.employeeForm.employeeId);
-    await empIdField.fill('');
-    await empIdField.fill(employee.employeeId);
-
     // Wait for loader to disappear
     await this.page.locator(pimSelectors.common.loader).waitFor({ state: 'detached', timeout: 20000 });
 
@@ -31,8 +26,7 @@ export class PIMPage {
     await this.page.waitForTimeout(10000);
 
     // Fill login credentials
-    const uniqueUser = `${employee.username}_${Date.now()}`;
-    await this.page.fill(pimSelectors.employeeForm.username, uniqueUser);
+    await this.page.fill(pimSelectors.employeeForm.username, employee.username);
     await this.page.fill(pimSelectors.employeeForm.password, employee.password);
     await this.page.fill(pimSelectors.employeeForm.confirmPassword, employee.password);
 
@@ -47,7 +41,7 @@ export class PIMPage {
     ]).catch(() => 'none');
 
     console.log(`After Save: ${result}, URL: ${await this.page.url()}`);
-    return { result, username: uniqueUser };
+    return { result, username: employee.username };
   }
 
   async gotoEmployeeList() {
